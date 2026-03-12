@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2D Floor Plan Interior Designer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <h1>Floor Plan Designer</h1>
+        <p>Developed by GGP</p>
+
+        <section class="panel">
+          <h2>1) Upload Floor Plan</h2>
+          <input id="imageInput" type="file" accept="image/*" />
+          <p class="hint">Upload a floor plan image (PNG/JPG).</p>
+        </section>
+
+        <section class="panel">
+          <h2>2) Set Scale</h2>
+          <button id="startCalibrationBtn" type="button">Pick 2 Points</button>
+          <p id="scaleInfo" class="hint">Scale not set.</p>
+          <div id="calibrationLengthBox" class="hidden calibration-box">
+            <label for="actualLengthInput">Actual line length</label>
+            <div class="row">
+              <input id="actualLengthInput" type="number" min="0" step="any" placeholder="e.g. 4.5" />
+              <button id="confirmLengthBtn" type="button">Confirm</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>3) Create / Edit Object</h2>
+          <form id="objectForm">
+            <label for="objectType">Type</label>
+            <select id="objectType">
+              <option value="rectangle">Rectangle</option>
+              <option value="circle">Circle</option>
+            </select>
+
+            <label for="objectName">Name</label>
+            <input id="objectName" type="text" maxlength="60" placeholder="e.g. Table" required />
+
+            <div id="rectDims">
+              <label for="objectWidth">Width (actual)</label>
+              <input id="objectWidth" type="number" min="0" step="any" placeholder="e.g. 1.2" />
+
+              <label for="objectHeight">Height (actual)</label>
+              <input id="objectHeight" type="number" min="0" step="any" placeholder="e.g. 0.8" />
+            </div>
+
+            <div id="circleDims" class="hidden">
+              <label for="objectDiameter">Diameter (actual)</label>
+              <input id="objectDiameter" type="number" min="0" step="any" placeholder="e.g. 1.0" />
+            </div>
+
+            <label for="objectColor">Color</label>
+            <input id="objectColor" type="color" value="#2f80ed" />
+
+            <label for="objectRotation">Rotation (deg)</label>
+            <input id="objectRotation" type="number" step="any" value="0" />
+
+            <div class="actions">
+              <button id="saveObjectBtn" type="submit">Add Object</button>
+              <button id="cancelEditBtn" type="button" class="secondary hidden">Cancel Edit</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <h2>4) Objects</h2>
+          <ul id="objectList" class="object-list"></ul>
+        </section>
+
+        <section class="panel">
+          <h2>5) Project</h2>
+          <div class="actions">
+            <button id="saveProjectBtn" type="button">Save Project</button>
+            <button id="loadProjectBtn" type="button" class="secondary">Load Project</button>
+          </div>
+          <input id="loadProjectInput" type="file" accept="application/json" class="hidden" />
+          <p class="hint">Save/load includes floor plan, scale, and objects.</p>
+        </section>
+      </aside>
+
+      <main class="canvas-area">
+        <div id="statusBar" class="status-bar">
+          Upload a floor plan, calibrate scale, then add objects.
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="editorCanvas" width="1000" height="700"></canvas>
+        </div>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
