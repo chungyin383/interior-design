@@ -33,6 +33,7 @@
 
         <section class="panel">
           <h2>3) Create / Edit Object</h2>
+          <p id="objectEditorInfo" class="hint">Click an object on the canvas to edit or delete it here.</p>
           <form id="objectForm">
             <label for="objectType">Type</label>
             <select id="objectType">
@@ -64,18 +65,25 @@
 
             <div class="actions">
               <button id="saveObjectBtn" type="submit">Add Object</button>
+              <button id="deleteObjectBtn" type="button" class="delete hidden">Delete Object</button>
               <button id="cancelEditBtn" type="button" class="secondary hidden">Cancel Edit</button>
             </div>
           </form>
         </section>
 
         <section class="panel">
-          <h2>4) Objects</h2>
+          <h2>4) Furniture Library</h2>
+          <ul id="presetList" class="preset-list"></ul>
+          <p class="hint">Built-in furniture is loaded into each new plan and can be added again from here.</p>
+        </section>
+
+        <section class="panel">
+          <h2>5) Objects</h2>
           <ul id="objectList" class="object-list"></ul>
         </section>
 
         <section class="panel">
-          <h2>5) Project</h2>
+          <h2>6) Project</h2>
           <div class="actions">
             <button id="saveProjectBtn" type="button">Save Project</button>
             <button id="loadProjectBtn" type="button" class="secondary">Load Project</button>

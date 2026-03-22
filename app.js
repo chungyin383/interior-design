@@ -17,8 +17,11 @@ const objectRotation = document.getElementById("objectRotation");
 const rectDims = document.getElementById("rectDims");
 const circleDims = document.getElementById("circleDims");
 const saveObjectBtn = document.getElementById("saveObjectBtn");
+const deleteObjectBtn = document.getElementById("deleteObjectBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
+const objectEditorInfo = document.getElementById("objectEditorInfo");
 const objectList = document.getElementById("objectList");
+const presetList = document.getElementById("presetList");
 const saveProjectBtn = document.getElementById("saveProjectBtn");
 const loadProjectBtn = document.getElementById("loadProjectBtn");
 const loadProjectInput = document.getElementById("loadProjectInput");
@@ -32,6 +35,7 @@ const state = {
   imageScale: 1,
   mode: "idle",
   calibrationPoints: [],
+  showCalibrationGuides: false,
   pxPerUnit: null,
   objects: [],
   selectedObjectId: null,
@@ -47,6 +51,85 @@ const state = {
 const CANVAS_MAX_WIDTH = 1200;
 const CANVAS_MAX_HEIGHT = 820;
 
+const DEFAULT_FURNITURE_PRESETS = [
+  {
+    key: "sofa-l",
+    name: "Sofa",
+    type: "rectangle",
+    width: 240,
+    height: 155,
+    color: "#b7791f",
+    shape: "l-sofa",
+    cutoutWidth: 150,
+    cutoutHeight: 65,
+    cutoutCorner: "top-left",
+  },
+  {
+    key: "tv",
+    name: "TV",
+    type: "rectangle",
+    width: 138,
+    height: 35,
+    color: "#475569",
+  },
+  {
+    key: "shoes",
+    name: "Shoes",
+    type: "rectangle",
+    width: 105,
+    height: 40,
+    color: "#0f766e",
+  },
+  {
+    key: "piano",
+    name: "Piano",
+    type: "rectangle",
+    width: 110,
+    height: 28,
+    color: "#1f2937",
+  },
+  {
+    key: "clothes",
+    name: "Clothes",
+    type: "rectangle",
+    width: 120,
+    height: 60,
+    color: "#7c3aed",
+  },
+  {
+    key: "desk-1",
+    name: "Desk 1",
+    type: "rectangle",
+    width: 120,
+    height: 60,
+    color: "#2563eb",
+  },
+  {
+    key: "desk-2",
+    name: "Desk 2",
+    type: "rectangle",
+    width: 120,
+    height: 60,
+    color: "#0891b2",
+  },
+  {
+    key: "bed",
+    name: "Bed",
+    type: "rectangle",
+    width: 150,
+    height: 185,
+    color: "#be185d",
+  },
+  {
+    key: "book",
+    name: "Book",
+    type: "rectangle",
+    width: 80,
+    height: 28,
+    color: "#ca8a04",
+  },
+];
+
 function setStatus(message) {
   statusBar.textContent = message;
 }
@@ -55,6 +138,17 @@ function updateTypeInputs() {
   const isRect = objectType.value === "rectangle";
   rectDims.classList.toggle("hidden", !isRect);
   circleDims.classList.toggle("hidden", isRect);
+}
+
+function updateObjectEditorInfo(message) {
+  objectEditorInfo.textContent = message;
+}
+
+function updateObjectEditorActions() {
+  const isEditing = Boolean(state.editingObjectId);
+  saveObjectBtn.textContent = isEditing ? "Update Object" : "Add Object";
+  deleteObjectBtn.classList.toggle("hidden", !isEditing);
+  cancelEditBtn.classList.toggle("hidden", !isEditing);
 }
 
 function resetObjectForm() {
@@ -66,9 +160,94 @@ function resetObjectForm() {
   objectColor.value = "#2f80ed";
   objectRotation.value = "0";
   state.editingObjectId = null;
-  saveObjectBtn.textContent = "Add Object";
-  cancelEditBtn.classList.add("hidden");
+  updateObjectEditorActions();
+  updateObjectEditorInfo("Click an object on the canvas to edit or delete it here.");
   updateTypeInputs();
+}
+
+function clearSelection() {
+  state.selectedObjectId = null;
+  resetObjectForm();
+  renderObjectList();
+  redraw();
+}
+
+function getPresetPosition(index) {
+  const columns = 3;
+  const rows = Math.ceil(DEFAULT_FURNITURE_PRESETS.length / columns);
+  const col = index % columns;
+  const row = Math.floor(index / columns);
+  const x = (canvas.width / (columns + 1)) * (col + 1);
+  const y = (canvas.height / (rows + 1)) * (row + 1);
+  return { x, y };
+}
+
+function createObjectFromPreset(preset, index) {
+  const position = getPresetPosition(index);
+  return {
+    id: crypto.randomUUID(),
+    x: position.x,
+    y: position.y,
+    name: preset.name,
+    type: preset.type,
+    color: preset.color,
+    rotationDeg: 0,
+    width: preset.width,
+    height: preset.height,
+    diameter: preset.diameter,
+    shape: preset.shape,
+    cutoutWidth: preset.cutoutWidth,
+    cutoutHeight: preset.cutoutHeight,
+    cutoutCorner: preset.cutoutCorner,
+  };
+}
+
+function createDefaultFurnitureObjects() {
+  return DEFAULT_FURNITURE_PRESETS.map((preset, index) => createObjectFromPreset(preset, index));
+}
+
+function addPresetObject(presetKey) {
+  const preset = DEFAULT_FURNITURE_PRESETS.find((entry) => entry.key === presetKey);
+  if (!preset) {
+    return;
+  }
+
+  const obj = createObjectFromPreset(preset, state.objects.length);
+  state.objects.push(obj);
+  beginEditObject(obj.id);
+  renderObjectList();
+  redraw();
+  setStatus(`Added preset: ${obj.name}`);
+}
+
+function renderPresetList() {
+  presetList.innerHTML = "";
+
+  DEFAULT_FURNITURE_PRESETS.forEach((preset) => {
+    const li = document.createElement("li");
+    li.className = "preset-item";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "preset-name";
+    nameEl.textContent = preset.name;
+
+    const metaEl = document.createElement("div");
+    metaEl.className = "object-meta";
+    metaEl.textContent =
+      preset.shape === "l-sofa"
+        ? `${preset.width} × ${preset.height} with ${preset.cutoutWidth} × ${preset.cutoutHeight} cut-out`
+        : preset.type === "rectangle"
+          ? `${preset.width} × ${preset.height}`
+          : `D ${preset.diameter}`;
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.textContent = "Add";
+    addBtn.addEventListener("click", () => addPresetObject(preset.key));
+
+    li.append(nameEl, metaEl, addBtn);
+    presetList.appendChild(li);
+  });
 }
 
 function getCanvasPoint(evt) {
@@ -136,7 +315,7 @@ function getObjectBoundingHalfExtents(obj, size) {
 }
 
 function drawCalibrationGuides() {
-  if (!state.calibrationPoints.length) {
+  if (!state.showCalibrationGuides || !state.calibrationPoints.length) {
     return;
   }
 
@@ -164,6 +343,61 @@ function drawCalibrationGuides() {
   ctx.restore();
 }
 
+function getRectangleCutoutPixels(obj) {
+  if (obj.shape !== "l-sofa") {
+    return null;
+  }
+
+  return {
+    widthPx: (obj.cutoutWidth || 0) * state.pxPerUnit,
+    heightPx: (obj.cutoutHeight || 0) * state.pxPerUnit,
+    corner: obj.cutoutCorner || "top-left",
+  };
+}
+
+function traceRectangleShape(obj, size) {
+  const left = -size.widthPx / 2;
+  const top = -size.heightPx / 2;
+  const right = size.widthPx / 2;
+  const bottom = size.heightPx / 2;
+  const cutout = getRectangleCutoutPixels(obj);
+
+  ctx.beginPath();
+
+  if (!cutout) {
+    ctx.rect(left, top, size.widthPx, size.heightPx);
+    return;
+  }
+
+  const cutoutWidthPx = Math.min(cutout.widthPx, size.widthPx);
+  const cutoutHeightPx = Math.min(cutout.heightPx, size.heightPx);
+
+  if (cutout.corner === "top-left") {
+    const innerX = left + cutoutWidthPx;
+    const innerY = top + cutoutHeightPx;
+
+    ctx.moveTo(innerX, top);
+    ctx.lineTo(right, top);
+    ctx.lineTo(right, bottom);
+    ctx.lineTo(left, bottom);
+    ctx.lineTo(left, innerY);
+    ctx.lineTo(innerX, innerY);
+    ctx.closePath();
+    return;
+  }
+
+  const innerX = right - cutoutWidthPx;
+  const innerY = top + cutoutHeightPx;
+
+  ctx.moveTo(left, top);
+  ctx.lineTo(innerX, top);
+  ctx.lineTo(innerX, innerY);
+  ctx.lineTo(right, innerY);
+  ctx.lineTo(right, bottom);
+  ctx.lineTo(left, bottom);
+  ctx.closePath();
+}
+
 function drawObjects() {
   state.objects.forEach((obj) => {
     const size = getObjectPixelSize(obj);
@@ -184,9 +418,11 @@ function drawObjects() {
     if (obj.type === "rectangle") {
       const left = -size.widthPx / 2;
       const top = -size.heightPx / 2;
-      ctx.fillRect(left, top, size.widthPx, size.heightPx);
+      traceRectangleShape(obj, size);
+      ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.strokeRect(left, top, size.widthPx, size.heightPx);
+      traceRectangleShape(obj, size);
+      ctx.stroke();
 
       if (isSelected) {
         ctx.setLineDash([6, 4]);
@@ -251,6 +487,14 @@ function renderObjectList() {
   state.objects.forEach((obj) => {
     const li = document.createElement("li");
     li.className = "object-item";
+    li.classList.toggle("selected", obj.id === state.selectedObjectId);
+    li.addEventListener("click", (evt) => {
+      if (evt.target.closest("button")) {
+        return;
+      }
+
+      beginEditObject(obj.id);
+    });
 
     const nameEl = document.createElement("div");
     nameEl.innerHTML = `<strong>${obj.name}</strong> (${obj.type})`;
@@ -259,7 +503,7 @@ function renderObjectList() {
     metaEl.className = "object-meta";
     metaEl.textContent =
       obj.type === "rectangle"
-        ? `W ${obj.width} × H ${obj.height} • Rot ${obj.rotationDeg || 0}°`
+        ? `${obj.shape === "l-sofa" ? "L-sofa" : "Rect"} ${obj.width} × ${obj.height} • Rot ${obj.rotationDeg || 0}°`
         : `D ${obj.diameter} • Rot ${obj.rotationDeg || 0}°`;
 
     const actions = document.createElement("div");
@@ -307,8 +551,9 @@ function beginEditObject(id) {
   }
 
   updateTypeInputs();
-  saveObjectBtn.textContent = "Update Object";
-  cancelEditBtn.classList.remove("hidden");
+  updateObjectEditorActions();
+  renderObjectList();
+  updateObjectEditorInfo(`Selected object: ${obj.name}`);
   setStatus(`Editing object: ${obj.name}`);
   redraw();
 }
@@ -337,7 +582,7 @@ function deleteObject(id) {
 function createOrUpdateObject(evt) {
   evt.preventDefault();
 
-  if (!state.pxPerUnit) {
+  if (!state.pxPerUnit && !state.editingObjectId) {
     setStatus("Set scale first before adding objects.");
     return;
   }
@@ -396,7 +641,7 @@ function createOrUpdateObject(evt) {
     Object.assign(obj, base);
     setStatus(`Updated object: ${obj.name}`);
     state.selectedObjectId = obj.id;
-    resetObjectForm();
+    beginEditObject(obj.id);
   } else {
     const id = crypto.randomUUID();
     const centerX = canvas.width / 2;
@@ -411,6 +656,7 @@ function createOrUpdateObject(evt) {
 
     state.objects.push(newObj);
     state.selectedObjectId = id;
+    beginEditObject(id);
     setStatus(`Added object: ${newObj.name}. Drag it on the plan.`);
   }
 
@@ -426,6 +672,7 @@ function startCalibrationMode() {
 
   state.mode = "calibrate";
   state.calibrationPoints = [];
+  state.showCalibrationGuides = true;
   calibrationLengthBox.classList.add("hidden");
   actualLengthInput.value = "";
   setStatus("Calibration mode: click the first point on the floor plan.");
@@ -449,6 +696,8 @@ function finishCalibration() {
 
   state.pxPerUnit = pixelDistance / actualLength;
   state.mode = "idle";
+  state.calibrationPoints = [];
+  state.showCalibrationGuides = false;
   calibrationLengthBox.classList.add("hidden");
 
   scaleInfo.textContent = `Scale: ${state.pxPerUnit.toFixed(2)} px per unit`;
@@ -482,6 +731,25 @@ function getObjectAtPoint(x, y) {
         localY >= -halfH &&
         localY <= halfH
       ) {
+        const cutout = getRectangleCutoutPixels(obj);
+        if (cutout) {
+          const top = -halfH;
+          const left = -halfW;
+          const right = halfW;
+          const cutoutWidthPx = Math.min(cutout.widthPx, size.widthPx);
+          const cutoutHeightPx = Math.min(cutout.heightPx, size.heightPx);
+          const innerY = top + cutoutHeightPx;
+
+          const isInsideCutout =
+            cutout.corner === "top-left"
+              ? localX <= left + cutoutWidthPx && localY <= innerY
+              : localX >= right - cutoutWidthPx && localY <= innerY;
+
+          if (isInsideCutout) {
+            continue;
+          }
+        }
+
         return obj;
       }
     } else {
@@ -543,13 +811,12 @@ function onCanvasMouseDown(evt) {
 
   const hit = getObjectAtPoint(point.x, point.y);
   if (!hit) {
-    state.selectedObjectId = null;
-    redraw();
+    clearSelection();
     return;
   }
 
-  state.selectedObjectId = hit.id;
   moveObjectToFront(hit.id);
+  beginEditObject(hit.id);
 
   state.dragging.active = true;
   state.dragging.objectId = hit.id;
@@ -618,7 +885,8 @@ function handleImageUpload(evt) {
       resizeCanvasForImage(image);
       state.pxPerUnit = null;
       state.calibrationPoints = [];
-      state.objects = [];
+      state.showCalibrationGuides = false;
+      state.objects = createDefaultFurnitureObjects();
       state.selectedObjectId = null;
       resetObjectForm();
       renderObjectList();
@@ -695,6 +963,7 @@ async function handleLoadProjectFile(evt) {
 
     state.pxPerUnit = Number(project.pxPerUnit) > 0 ? Number(project.pxPerUnit) : null;
     state.calibrationPoints = [];
+    state.showCalibrationGuides = false;
     state.objects = Array.isArray(project.objects)
       ? project.objects
           .map((obj) => ({
@@ -729,8 +998,13 @@ confirmLengthBtn.addEventListener("click", finishCalibration);
 
 objectType.addEventListener("change", updateTypeInputs);
 objectForm.addEventListener("submit", createOrUpdateObject);
+deleteObjectBtn.addEventListener("click", () => {
+  if (state.editingObjectId) {
+    deleteObject(state.editingObjectId);
+  }
+});
 cancelEditBtn.addEventListener("click", () => {
-  resetObjectForm();
+  clearSelection();
   setStatus("Edit canceled.");
 });
 
@@ -746,5 +1020,7 @@ canvas.addEventListener("mouseup", stopDragging);
 canvas.addEventListener("mouseleave", stopDragging);
 
 updateTypeInputs();
+state.objects = createDefaultFurnitureObjects();
+renderPresetList();
 renderObjectList();
 redraw();

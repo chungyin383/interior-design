@@ -106,7 +106,7 @@ button:disabled {
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 10px;
 }
@@ -132,6 +132,11 @@ button:disabled {
   gap: 6px;
 }
 
+.object-item.selected {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 1px rgba(47, 128, 237, 0.2);
+}
+
 .object-meta {
   font-size: 12px;
   color: #4b5563;
@@ -141,6 +146,27 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
+}
+
+.preset-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.preset-item {
+  border: 1px solid #d6dbe6;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.preset-name {
+  font-weight: 700;
 }
 
 .canvas-area {
@@ -172,4 +198,30 @@ button:disabled {
 
 .calibration-box {
   margin-top: 8px;
+}
+
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid #d7dce4;
+  }
+
+  .canvas-area {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .actions,
+  .object-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
 }
