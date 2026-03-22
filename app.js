@@ -25,6 +25,9 @@ const presetList = document.getElementById("presetList");
 const saveProjectBtn = document.getElementById("saveProjectBtn");
 const loadProjectBtn = document.getElementById("loadProjectBtn");
 const loadProjectInput = document.getElementById("loadProjectInput");
+const activityButtons = Array.from(document.querySelectorAll(".activity-button"));
+const sidebarViews = Array.from(document.querySelectorAll(".sidebar-view"));
+const sidebarTitle = document.getElementById("sidebarTitle");
 
 const canvas = document.getElementById("editorCanvas");
 const ctx = canvas.getContext("2d");
@@ -40,6 +43,7 @@ const state = {
   objects: [],
   selectedObjectId: null,
   editingObjectId: null,
+  activeSidebarSection: "upload",
   dragging: {
     active: false,
     objectId: null,
@@ -130,8 +134,38 @@ const DEFAULT_FURNITURE_PRESETS = [
   },
 ];
 
+const SIDEBAR_SECTION_TITLES = {
+  upload: "Upload Floor Plan",
+  scale: "Set Scale",
+  editor: "Create / Edit Object",
+  library: "Furniture Library",
+  objects: "Objects",
+  project: "Project",
+};
+
 function setStatus(message) {
   statusBar.textContent = message;
+}
+
+function setActiveSidebarSection(sectionName) {
+  if (!SIDEBAR_SECTION_TITLES[sectionName]) {
+    return;
+  }
+
+  state.activeSidebarSection = sectionName;
+
+  activityButtons.forEach((button) => {
+    const isActive = button.dataset.section === sectionName;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  sidebarViews.forEach((view) => {
+    view.classList.toggle("hidden", view.dataset.section !== sectionName);
+    view.classList.toggle("active", view.dataset.section === sectionName);
+  });
+
+  sidebarTitle.textContent = SIDEBAR_SECTION_TITLES[sectionName];
 }
 
 function updateTypeInputs() {
@@ -532,6 +566,7 @@ function beginEditObject(id) {
     return;
   }
 
+  setActiveSidebarSection("editor");
   state.selectedObjectId = id;
   state.editingObjectId = id;
 
@@ -699,6 +734,7 @@ function finishCalibration() {
   state.calibrationPoints = [];
   state.showCalibrationGuides = false;
   calibrationLengthBox.classList.add("hidden");
+  setActiveSidebarSection("editor");
 
   scaleInfo.textContent = `Scale: ${state.pxPerUnit.toFixed(2)} px per unit`;
   setStatus("Scale set. You can now add objects with actual dimensions.");
@@ -890,6 +926,7 @@ function handleImageUpload(evt) {
       state.selectedObjectId = null;
       resetObjectForm();
       renderObjectList();
+      setActiveSidebarSection("scale");
 
       scaleInfo.textContent = "Scale not set.";
       setStatus("Image loaded. Click 'Pick 2 Points' to set scale.");
@@ -975,6 +1012,7 @@ async function handleLoadProjectFile(evt) {
     state.selectedObjectId = null;
     resetObjectForm();
     renderObjectList();
+    setActiveSidebarSection(state.pxPerUnit ? "editor" : "scale");
 
     if (state.pxPerUnit) {
       scaleInfo.textContent = `Scale: ${state.pxPerUnit.toFixed(2)} px per unit`;
@@ -995,6 +1033,12 @@ async function handleLoadProjectFile(evt) {
 imageInput.addEventListener("change", handleImageUpload);
 startCalibrationBtn.addEventListener("click", startCalibrationMode);
 confirmLengthBtn.addEventListener("click", finishCalibration);
+
+activityButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    setActiveSidebarSection(button.dataset.section);
+  });
+});
 
 objectType.addEventListener("change", updateTypeInputs);
 objectForm.addEventListener("submit", createOrUpdateObject);
@@ -1023,4 +1067,5 @@ updateTypeInputs();
 state.objects = createDefaultFurnitureObjects();
 renderPresetList();
 renderObjectList();
+setActiveSidebarSection(state.activeSidebarSection);
 redraw();

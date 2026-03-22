@@ -1,5 +1,15 @@
 :root {
   color-scheme: light;
+  --chrome-0: #f3f3f3;
+  --chrome-1: #ececec;
+  --chrome-2: #e5e5e5;
+  --chrome-3: #d4d4d4;
+  --text-strong: #1f1f1f;
+  --text-muted: #616161;
+  --accent: #0f6cbd;
+  --accent-soft: #d9ecff;
+  --danger: #c42b1c;
+  --canvas-bg: #fafafa;
 }
 
 * {
@@ -8,82 +18,168 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f6fb;
-  color: #1f2937;
+  font-family: "Segoe UI Variable", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #ffffff;
+  color: var(--text-strong);
 }
 
 .app-shell {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 320px 1fr;
   min-height: 100vh;
 }
 
+.sidebar-shell {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  min-height: 100vh;
+  border-right: 1px solid var(--chrome-2);
+  background: var(--chrome-0);
+}
+
+.activity-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: var(--chrome-1);
+  border-right: 1px solid var(--chrome-2);
+}
+
+.activity-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #5a5a5a;
+}
+
+.activity-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-strong);
+}
+
+.activity-button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.activity-button svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .sidebar {
-  border-right: 1px solid #d7dce4;
-  background: #ffffff;
-  padding: 16px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--chrome-0);
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--chrome-2);
+}
+
+.sidebar-eyebrow {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .sidebar h1 {
-  font-size: 20px;
-  margin: 0 0 14px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sidebar-subtitle {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sidebar-view {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 18px;
+  overflow-y: auto;
 }
 
 .panel {
-  background: #f9fbff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
 }
 
 .panel h2 {
-  font-size: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   margin: 0 0 10px;
 }
 
 label {
   display: block;
-  margin: 8px 0 4px;
-  font-size: 13px;
+  margin: 10px 0 5px;
+  font-size: 12px;
   font-weight: 600;
+  color: #3d3d3d;
 }
 
 input,
 select,
 button {
   width: 100%;
-  min-height: 34px;
-  font-size: 14px;
+  min-height: 30px;
+  font-size: 13px;
 }
 
 input,
 select {
-  border: 1px solid #cfd8e3;
-  border-radius: 7px;
-  padding: 6px 8px;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  padding: 5px 8px;
   background: #ffffff;
+  color: var(--text-strong);
 }
 
 button {
-  border: 1px solid #2f80ed;
-  background: #2f80ed;
+  border: 1px solid var(--accent);
+  background: var(--accent);
   color: #fff;
-  border-radius: 7px;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 600;
 }
 
 button.secondary {
-  border-color: #9aa5b1;
-  background: #9aa5b1;
+  border-color: #c8c8c8;
+  background: #ffffff;
+  color: var(--text-strong);
 }
 
 button.delete {
-  border-color: #d64545;
-  background: #d64545;
+  border-color: var(--danger);
+  background: var(--danger);
 }
 
 button:disabled {
@@ -92,23 +188,23 @@ button:disabled {
 }
 
 .hint {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 12px;
-  color: #5f6b7a;
+  color: var(--text-muted);
 }
 
 .row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 8px;
+  gap: 6px;
   align-items: end;
 }
 
 .actions {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .hidden {
@@ -124,22 +220,22 @@ button:disabled {
 }
 
 .object-item {
-  border: 1px solid #d6dbe6;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--chrome-2);
+  border-radius: 6px;
+  background: #ffffff;
   padding: 8px;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .object-item.selected {
-  border-color: #2f80ed;
-  box-shadow: 0 0 0 1px rgba(47, 128, 237, 0.2);
+  border-color: var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .object-meta {
   font-size: 12px;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .object-actions {
@@ -157,16 +253,16 @@ button:disabled {
 }
 
 .preset-item {
-  border: 1px solid #d6dbe6;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid var(--chrome-2);
+  border-radius: 6px;
+  background: #ffffff;
   padding: 8px;
   display: grid;
-  gap: 6px;
+  gap: 5px;
 }
 
 .preset-name {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .canvas-area {
@@ -177,7 +273,7 @@ button:disabled {
 
 .status-bar {
   min-height: 42px;
-  border-bottom: 1px solid #d7dce4;
+  border-bottom: 1px solid var(--chrome-2);
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -188,11 +284,12 @@ button:disabled {
 .canvas-wrap {
   padding: 12px;
   overflow: auto;
+  background: var(--canvas-bg);
 }
 
 #editorCanvas {
   display: block;
-  border: 1px solid #cfd8e3;
+  border: 1px solid var(--chrome-3);
   background: #fff;
 }
 
@@ -205,8 +302,8 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
-    border-right: 0;
+  .sidebar-shell {
+    min-height: auto;
     border-bottom: 1px solid #d7dce4;
   }
 
@@ -216,6 +313,14 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
+  .sidebar-shell {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .activity-bar {
+    padding: 8px 4px;
+  }
+
   .actions,
   .object-actions {
     grid-template-columns: 1fr;

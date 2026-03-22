@@ -8,18 +8,73 @@
   </head>
   <body>
     <div class="app-shell">
-      <aside class="sidebar">
-        <h1>Floor Plan Designer</h1>
-        <p>Developed by GGP</p>
+      <aside class="sidebar-shell">
+        <nav class="activity-bar" aria-label="Workspace Sections">
+          <button class="activity-button active" type="button" data-section="upload" aria-label="Upload Floor Plan" title="Upload Floor Plan">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 16.5V18a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1.5" />
+              <path d="M12 4v11" />
+              <path d="m8.5 8 3.5-4 3.5 4" />
+            </svg>
+          </button>
+          <button class="activity-button" type="button" data-section="scale" aria-label="Set Scale" title="Set Scale">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 8h16" />
+              <path d="M7 5v6" />
+              <path d="M12 5v3" />
+              <path d="M17 5v6" />
+              <path d="M5 16h14" />
+            </svg>
+          </button>
+          <button class="activity-button" type="button" data-section="editor" aria-label="Create Or Edit Object" title="Create Or Edit Object">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 18.5V20h1.5L17 8.5 15.5 7 4 18.5Z" />
+              <path d="m14.5 8 1.5-1.5 1.5 1.5L16 9.5" />
+              <path d="M13 4h7v7" />
+            </svg>
+          </button>
+          <button class="activity-button" type="button" data-section="library" aria-label="Furniture Library" title="Furniture Library">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 16V9a2 2 0 0 1 2-2h4v9" />
+              <path d="M14 16V7h4a2 2 0 0 1 2 2v7" />
+              <path d="M2 16h20" />
+              <path d="M6 16v3" />
+              <path d="M18 16v3" />
+            </svg>
+          </button>
+          <button class="activity-button" type="button" data-section="objects" aria-label="Objects" title="Objects">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="4" y="4" width="6" height="6" rx="1" />
+              <rect x="14" y="4" width="6" height="6" rx="1" />
+              <rect x="4" y="14" width="6" height="6" rx="1" />
+              <rect x="14" y="14" width="6" height="6" rx="1" />
+            </svg>
+          </button>
+          <button class="activity-button" type="button" data-section="project" aria-label="Project" title="Project">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 4h7l5 5v11a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+              <path d="M14 4v5h5" />
+            </svg>
+          </button>
+        </nav>
 
-        <section class="panel">
-          <h2>1) Upload Floor Plan</h2>
+        <div class="sidebar">
+          <header class="sidebar-header">
+            <div>
+              <p class="sidebar-eyebrow">Workspace</p>
+              <h1 id="sidebarTitle">Upload Floor Plan</h1>
+            </div>
+            <p class="sidebar-subtitle">Floor Plan Designer</p>
+          </header>
+
+          <section class="panel sidebar-view active" data-section="upload">
+            <h2>Upload Floor Plan</h2>
           <input id="imageInput" type="file" accept="image/*" />
           <p class="hint">Upload a floor plan image (PNG/JPG).</p>
         </section>
 
-        <section class="panel">
-          <h2>2) Set Scale</h2>
+          <section class="panel sidebar-view hidden" data-section="scale">
+            <h2>Set Scale</h2>
           <button id="startCalibrationBtn" type="button">Pick 2 Points</button>
           <p id="scaleInfo" class="hint">Scale not set.</p>
           <div id="calibrationLengthBox" class="hidden calibration-box">
@@ -31,8 +86,8 @@
           </div>
         </section>
 
-        <section class="panel">
-          <h2>3) Create / Edit Object</h2>
+          <section class="panel sidebar-view hidden" data-section="editor">
+            <h2>Create / Edit Object</h2>
           <p id="objectEditorInfo" class="hint">Click an object on the canvas to edit or delete it here.</p>
           <form id="objectForm">
             <label for="objectType">Type</label>
@@ -71,19 +126,19 @@
           </form>
         </section>
 
-        <section class="panel">
-          <h2>4) Furniture Library</h2>
+          <section class="panel sidebar-view hidden" data-section="library">
+            <h2>Furniture Library</h2>
           <ul id="presetList" class="preset-list"></ul>
           <p class="hint">Built-in furniture is loaded into each new plan and can be added again from here.</p>
         </section>
 
-        <section class="panel">
-          <h2>5) Objects</h2>
+          <section class="panel sidebar-view hidden" data-section="objects">
+            <h2>Objects</h2>
           <ul id="objectList" class="object-list"></ul>
         </section>
 
-        <section class="panel">
-          <h2>6) Project</h2>
+          <section class="panel sidebar-view hidden" data-section="project">
+            <h2>Project</h2>
           <div class="actions">
             <button id="saveProjectBtn" type="button">Save Project</button>
             <button id="loadProjectBtn" type="button" class="secondary">Load Project</button>
@@ -91,6 +146,7 @@
           <input id="loadProjectInput" type="file" accept="application/json" class="hidden" />
           <p class="hint">Save/load includes floor plan, scale, and objects.</p>
         </section>
+        </div>
       </aside>
 
       <main class="canvas-area">
